@@ -38,6 +38,7 @@ func findFilesIn(_ directories: [String], withExtensions extensions: [String]) -
 }
 
 func contentsOfFile(_ filePath: String) -> String {
+    if filePath.contains("/.DerivedData.noindex/") { return "" }
     do {
         return try String(contentsOfFile: filePath)
     }
@@ -108,7 +109,7 @@ func findAbandonedIdentifiersIn(_ rootDirectories: [String], withStoryboard: Boo
     var map = StringsFileToAbandonedIdentifiersMap()
     let sourceCode = concatenateAllSourceCodeIn(rootDirectories, withStoryboard: withStoryboard)
     let stringsFiles = findFilesIn(rootDirectories, withExtensions: ["strings"])
-    for stringsFile in stringsFiles {
+    for stringsFile in stringsFiles where stringsFile.contains("/en.lproj/") {
         dispatchGroup.enter()
         DispatchQueue.global().async {
             let abandonedIdentifiers = findStringIdentifiersIn(stringsFile, abandonedBySourceCode: sourceCode)
