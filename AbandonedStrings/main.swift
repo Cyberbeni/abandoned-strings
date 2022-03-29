@@ -38,6 +38,7 @@ func findFilesIn(_ directories: [String], withExtensions extensions: [String]) -
 }
 
 func contentsOfFile(_ filePath: String) -> String {
+    if filePath.contains("/.DerivedData.noindex/") { return "" }
     do {
         return try String(contentsOfFile: filePath)
     }
@@ -73,7 +74,7 @@ func extractStringIdentifiersFrom(_ stringsFile: String) -> [String] {
 func extractStringIdentifierFromTrimmedLine(_ line: String) -> String {
     let indexAfterFirstQuote = line.index(after: line.startIndex)
     let lineWithoutFirstQuote = line[indexAfterFirstQuote...]
-    let endIndex = lineWithoutFirstQuote.index(of:"\"")!
+    let endIndex = lineWithoutFirstQuote.firstIndex(of:"\"")!
     let identifier = lineWithoutFirstQuote[..<endIndex]
     return String(identifier)
 }
@@ -108,7 +109,7 @@ func findAbandonedIdentifiersIn(_ rootDirectories: [String], withStoryboard: Boo
     var map = StringsFileToAbandonedIdentifiersMap()
     let sourceCode = concatenateAllSourceCodeIn(rootDirectories, withStoryboard: withStoryboard)
     let stringsFiles = findFilesIn(rootDirectories, withExtensions: ["strings"])
-    for stringsFile in stringsFiles {
+    for stringsFile in stringsFiles where stringsFile.contains("/en.lproj/") {
         dispatchGroup.enter()
         DispatchQueue.global().async {
             let abandonedIdentifiers = findStringIdentifiersIn(stringsFile, abandonedBySourceCode: sourceCode)
@@ -139,7 +140,7 @@ func getRootDirectories() -> [String]? {
         c.removeLast()
     }
     if isOptionaParameterForWritingAvailable() {
-        c.remove(at: c.index(of: "write")!)
+        c.remove(at: c.firstIndex(of: "write")!)
     }
     return c
 }
